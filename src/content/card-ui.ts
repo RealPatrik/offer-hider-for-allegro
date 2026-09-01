@@ -55,6 +55,9 @@ const STYLES = `
 const EYE_SLASH_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.8 21.8 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.77 21.77 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
 const CHEVRON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
 
+/** Marks our injected shadow host so the scanner can tell whether a re-render wiped it. */
+export const HOST_ATTR = "data-aoh-host";
+
 // One shared "click outside" listener for every card's menu, instead of one
 // document-level listener per card — a listing page can have 70+ cards.
 let closeOpenMenu: (() => void) | null = null;
@@ -69,11 +72,15 @@ function bindOutsideClickOnce(): void {
 export function mountCardControls(article: HTMLElement, identity: Identity, keys: string[]): void {
   bindOutsideClickOnce();
 
+  // Re-applied on every mount, not just the first: a framework re-render that
+  // removes our host usually rewrites the card's style attribute too, which
+  // would otherwise leave the host anchored to the wrong ancestor.
   if (getComputedStyle(article).position === "static") {
     article.style.position = "relative";
   }
 
   const host = document.createElement("div");
+  host.setAttribute(HOST_ATTR, "");
   host.style.position = "absolute";
   host.style.top = "8px";
   host.style.right = "8px";

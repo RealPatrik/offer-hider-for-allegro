@@ -38,6 +38,9 @@ export function installFakeChrome(): void {
       getURL(path: string): string {
         return `chrome-extension://fake/${path}`;
       },
+      getManifest(): { version: string } {
+        return { version: "0.0.0-test" };
+      },
     },
   };
 

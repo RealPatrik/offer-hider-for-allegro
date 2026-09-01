@@ -135,4 +135,53 @@ describe("scanner", () => {
     const articles = [...document.querySelectorAll("article")];
     expect(articles[0]?.hasAttribute("data-aoh")).toBe(false);
   });
+
+  // Reproduces the real-world failure: on allegro.sk the controls appeared and
+  // then vanished within ~1s, because the page hydrates and discards DOM
+  // children it did not render itself.
+  it("re-mounts controls after the page's own re-render removes them", async () => {
+    const { startScanning } = await setup();
+    startScanning();
+
+    const article = document.querySelector("article")!;
+    expect(article.querySelector("[data-aoh-host]")).not.toBeNull();
+
+    // Simulate hydration wiping our injected node (the card itself survives).
+    article.querySelector("[data-aoh-host]")!.remove();
+    expect(article.querySelector("[data-aoh-host]")).toBeNull();
+
+    await flushRaf();
+
+    expect(article.querySelector("[data-aoh-host]")).not.toBeNull();
+  });
+
+  it("stops re-mounting after a capped number of attempts instead of fighting the page forever", async () => {
+    const { startScanning } = await setup();
+    startScanning();
+
+    const article = document.querySelector("article")!;
+
+    // Far more removals than the cap allows.
+    for (let i = 0; i < 40; i += 1) {
+      article.querySelector("[data-aoh-host]")?.remove();
+      await flushRaf();
+    }
+
+    // Having given up, it must leave the card alone rather than loop forever.
+    expect(article.querySelector("[data-aoh-host]")).toBeNull();
+  });
+
+  it("publishes diagnostics to a DOM attribute readable from the page's own console", async () => {
+    const { startScanning } = await setup();
+    startScanning();
+
+    const raw = document.documentElement.getAttribute("data-aoh-debug");
+    expect(raw).not.toBeNull();
+
+    const debug = JSON.parse(raw!);
+    expect(debug.resolved).toBe(2);
+    expect(debug.mounted).toBe(2);
+    expect(debug.hostsInDom).toBe(2);
+    expect(debug.lastError).toBeNull();
+  });
 });

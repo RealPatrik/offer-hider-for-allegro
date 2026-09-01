@@ -3,9 +3,10 @@ import { setLocaleOverride, type LocaleCode } from "../core/i18n";
 import { mountOfferPageBanner } from "./offer-page";
 import { debugState, startScanning } from "./scanner";
 
-// In-page troubleshooting handle: run `window.__offerHiderDebug` in DevTools
-// console on an Allegro page to see how many cards were found, resolved, and
-// actually got controls mounted, plus the last error if any mount failed.
+// Content scripts run in an isolated world, so this is only reachable from a
+// DevTools console whose context is switched to the extension. For the page
+// console, the scanner also publishes the same numbers to a DOM attribute:
+// `document.documentElement.dataset.aohDebug`.
 (window as unknown as Record<string, unknown>).__offerHiderDebug = debugState;
 
 async function bootstrap(): Promise<void> {
