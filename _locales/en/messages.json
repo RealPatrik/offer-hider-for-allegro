@@ -1,0 +1,44 @@
+{
+  "extName": { "message": "Offer Hider for Allegro" },
+  "extDescription": { "message": "Hide offers, products, and sellers you don't want to see on Allegro search results." },
+
+  "hideOfferAction": { "message": "Hide this offer" },
+  "hideProductAction": { "message": "Hide this product" },
+  "hideSellerAction": { "message": "Hide this seller" },
+  "hideMenuLabel": { "message": "More hide options" },
+  "hideIconLabel": { "message": "Hide this offer" },
+
+  "undoHiddenOne": { "message": "Hidden — Undo" },
+  "undoHiddenMany": { "message": "Hidden {0} — Undo" },
+  "undoButton": { "message": "Undo" },
+
+  "offerPageHiddenNotice": { "message": "You have hidden this offer" },
+  "offerPageUnhideButton": { "message": "Show again" },
+  "offerPageHideButton": { "message": "Hide this offer" },
+
+  "popupTitle": { "message": "Offer Hider for Allegro" },
+  "popupEnabledToggle": { "message": "Hiding enabled" },
+  "popupSearchPlaceholder": { "message": "Search hidden items" },
+  "popupEmptyState": { "message": "Nothing hidden yet" },
+  "popupRestoreButton": { "message": "Restore" },
+  "popupExportButton": { "message": "Export" },
+  "popupImportButton": { "message": "Import" },
+  "popupImportMergeLabel": { "message": "Merge with current list" },
+  "popupImportReplaceLabel": { "message": "Replace current list" },
+  "popupLanguageLabel": { "message": "Language" },
+  "popupLanguageAuto": { "message": "Automatic" },
+  "popupIncompatibleNotice": { "message": "Allegro changed its page structure — this extension needs an update." },
+  "popupCountLabel": { "message": "{0} hidden" },
+  "importResultSummary": { "message": "Added {0}, skipped {1}" },
+  "importInvalidFile": { "message": "This file could not be imported." },
+
+  "kindOffer": { "message": "Offer" },
+  "kindProduct": { "message": "Product" },
+  "kindSeller": { "message": "Seller" },
+
+  "localeNameEn": { "message": "English" },
+  "localeNamePl": { "message": "Polski" },
+  "localeNameSk": { "message": "Slovenčina" },
+  "localeNameHu": { "message": "Magyar" },
+  "localeNameCs": { "message": "Čeština" }
+}

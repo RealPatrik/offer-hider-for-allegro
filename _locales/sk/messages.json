@@ -1,0 +1,44 @@
+{
+  "extName": { "message": "Offer Hider for Allegro" },
+  "extDescription": { "message": "Skryte ponuky, produkty a predajcov, ktorých vo výsledkoch vyhľadávania na Allegro nechcete vidieť." },
+
+  "hideOfferAction": { "message": "Skryť túto ponuku" },
+  "hideProductAction": { "message": "Skryť tento produkt" },
+  "hideSellerAction": { "message": "Skryť tohto predajcu" },
+  "hideMenuLabel": { "message": "Ďalšie možnosti skrytia" },
+  "hideIconLabel": { "message": "Skryť túto ponuku" },
+
+  "undoHiddenOne": { "message": "Skryté — Vrátiť späť" },
+  "undoHiddenMany": { "message": "Skryté ({0}) — Vrátiť späť" },
+  "undoButton": { "message": "Vrátiť späť" },
+
+  "offerPageHiddenNotice": { "message": "Túto ponuku máš skrytú" },
+  "offerPageUnhideButton": { "message": "Zobraziť znova" },
+  "offerPageHideButton": { "message": "Skryť túto ponuku" },
+
+  "popupTitle": { "message": "Offer Hider for Allegro" },
+  "popupEnabledToggle": { "message": "Skrývanie zapnuté" },
+  "popupSearchPlaceholder": { "message": "Hľadať v skrytých" },
+  "popupEmptyState": { "message": "Zatiaľ nič nie je skryté" },
+  "popupRestoreButton": { "message": "Obnoviť" },
+  "popupExportButton": { "message": "Exportovať" },
+  "popupImportButton": { "message": "Importovať" },
+  "popupImportMergeLabel": { "message": "Zlúčiť s aktuálnym zoznamom" },
+  "popupImportReplaceLabel": { "message": "Nahradiť aktuálny zoznam" },
+  "popupLanguageLabel": { "message": "Jazyk" },
+  "popupLanguageAuto": { "message": "Automaticky" },
+  "popupIncompatibleNotice": { "message": "Allegro zmenilo štruktúru stránky — rozšírenie potrebuje aktualizáciu." },
+  "popupCountLabel": { "message": "Skrytých: {0}" },
+  "importResultSummary": { "message": "Pridané {0}, preskočené {1}" },
+  "importInvalidFile": { "message": "Tento súbor sa nepodarilo importovať." },
+
+  "kindOffer": { "message": "Ponuka" },
+  "kindProduct": { "message": "Produkt" },
+  "kindSeller": { "message": "Predajca" },
+
+  "localeNameEn": { "message": "English" },
+  "localeNamePl": { "message": "Polski" },
+  "localeNameSk": { "message": "Slovenčina" },
+  "localeNameHu": { "message": "Magyar" },
+  "localeNameCs": { "message": "Čeština" }
+}

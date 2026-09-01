@@ -1,0 +1,24 @@
+{
+  "name": "offer-hider-for-allegro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hide unwanted offers, products and sellers on Allegro search results.",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/build.mjs --watch",
+    "build": "tsc --noEmit && node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "zip": "node scripts/zip.mjs"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.280",
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^22.10.2",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "vitest": "^2.1.8"
+  }
+}

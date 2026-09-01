@@ -1,0 +1,44 @@
+{
+  "extName": { "message": "Offer Hider for Allegro" },
+  "extDescription": { "message": "Ukryj oferty, produkty i sprzedawców, których nie chcesz widzieć w wynikach wyszukiwania na Allegro." },
+
+  "hideOfferAction": { "message": "Ukryj tę ofertę" },
+  "hideProductAction": { "message": "Ukryj ten produkt" },
+  "hideSellerAction": { "message": "Ukryj tego sprzedawcę" },
+  "hideMenuLabel": { "message": "Więcej opcji ukrywania" },
+  "hideIconLabel": { "message": "Ukryj tę ofertę" },
+
+  "undoHiddenOne": { "message": "Ukryto — Cofnij" },
+  "undoHiddenMany": { "message": "Ukryto ({0}) — Cofnij" },
+  "undoButton": { "message": "Cofnij" },
+
+  "offerPageHiddenNotice": { "message": "Ta oferta jest ukryta" },
+  "offerPageUnhideButton": { "message": "Pokaż ponownie" },
+  "offerPageHideButton": { "message": "Ukryj tę ofertę" },
+
+  "popupTitle": { "message": "Offer Hider for Allegro" },
+  "popupEnabledToggle": { "message": "Ukrywanie włączone" },
+  "popupSearchPlaceholder": { "message": "Szukaj w ukrytych" },
+  "popupEmptyState": { "message": "Nic jeszcze nie ukryto" },
+  "popupRestoreButton": { "message": "Przywróć" },
+  "popupExportButton": { "message": "Eksportuj" },
+  "popupImportButton": { "message": "Importuj" },
+  "popupImportMergeLabel": { "message": "Scal z bieżącą listą" },
+  "popupImportReplaceLabel": { "message": "Zastąp bieżącą listę" },
+  "popupLanguageLabel": { "message": "Język" },
+  "popupLanguageAuto": { "message": "Automatycznie" },
+  "popupIncompatibleNotice": { "message": "Allegro zmieniło strukturę strony — rozszerzenie wymaga aktualizacji." },
+  "popupCountLabel": { "message": "Ukrytych: {0}" },
+  "importResultSummary": { "message": "Dodano {0}, pominięto {1}" },
+  "importInvalidFile": { "message": "Nie udało się zaimportować tego pliku." },
+
+  "kindOffer": { "message": "Oferta" },
+  "kindProduct": { "message": "Produkt" },
+  "kindSeller": { "message": "Sprzedawca" },
+
+  "localeNameEn": { "message": "English" },
+  "localeNamePl": { "message": "Polski" },
+  "localeNameSk": { "message": "Slovenčina" },
+  "localeNameHu": { "message": "Magyar" },
+  "localeNameCs": { "message": "Čeština" }
+}

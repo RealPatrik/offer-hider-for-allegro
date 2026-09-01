@@ -1,0 +1,44 @@
+{
+  "extName": { "message": "Offer Hider for Allegro" },
+  "extDescription": { "message": "Rejtse el az Allegro keresési találatokból azokat a hirdetéseket, termékeket és eladókat, amelyeket nem szeretne látni." },
+
+  "hideOfferAction": { "message": "Hirdetés elrejtése" },
+  "hideProductAction": { "message": "Termék elrejtése" },
+  "hideSellerAction": { "message": "Eladó elrejtése" },
+  "hideMenuLabel": { "message": "További elrejtési lehetőségek" },
+  "hideIconLabel": { "message": "Hirdetés elrejtése" },
+
+  "undoHiddenOne": { "message": "Elrejtve — Visszavonás" },
+  "undoHiddenMany": { "message": "Elrejtve ({0}) — Visszavonás" },
+  "undoButton": { "message": "Visszavonás" },
+
+  "offerPageHiddenNotice": { "message": "Ezt a hirdetést elrejtette" },
+  "offerPageUnhideButton": { "message": "Megjelenítés újra" },
+  "offerPageHideButton": { "message": "Hirdetés elrejtése" },
+
+  "popupTitle": { "message": "Offer Hider for Allegro" },
+  "popupEnabledToggle": { "message": "Elrejtés bekapcsolva" },
+  "popupSearchPlaceholder": { "message": "Keresés az elrejtettek között" },
+  "popupEmptyState": { "message": "Még nincs elrejtett elem" },
+  "popupRestoreButton": { "message": "Visszaállítás" },
+  "popupExportButton": { "message": "Exportálás" },
+  "popupImportButton": { "message": "Importálás" },
+  "popupImportMergeLabel": { "message": "Összefésülés a jelenlegi listával" },
+  "popupImportReplaceLabel": { "message": "Jelenlegi lista lecserélése" },
+  "popupLanguageLabel": { "message": "Nyelv" },
+  "popupLanguageAuto": { "message": "Automatikus" },
+  "popupIncompatibleNotice": { "message": "Az Allegro megváltoztatta az oldal felépítését — a bővítmény frissítésre szorul." },
+  "popupCountLabel": { "message": "Elrejtve: {0}" },
+  "importResultSummary": { "message": "Hozzáadva {0}, kihagyva {1}" },
+  "importInvalidFile": { "message": "Ezt a fájlt nem sikerült importálni." },
+
+  "kindOffer": { "message": "Hirdetés" },
+  "kindProduct": { "message": "Termék" },
+  "kindSeller": { "message": "Eladó" },
+
+  "localeNameEn": { "message": "English" },
+  "localeNamePl": { "message": "Polski" },
+  "localeNameSk": { "message": "Slovenčina" },
+  "localeNameHu": { "message": "Magyar" },
+  "localeNameCs": { "message": "Čeština" }
+}
