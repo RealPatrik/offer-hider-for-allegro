@@ -1,7 +1,7 @@
 import { store } from "../core/store";
 import { t } from "../core/i18n";
 import { escapeHtml } from "./dom-utils";
-import { setInnerHtml } from "./trusted-html";
+import { createStyle, replaceContent } from "./trusted-html";
 
 const VISIBLE_MS = 5000;
 
@@ -52,6 +52,7 @@ function ensureHost(): void {
   hostEl.style.zIndex = "2147483000";
   document.documentElement.appendChild(hostEl);
   shadow = hostEl.attachShadow({ mode: "open" });
+  shadow.append(createStyle(STYLES));
 }
 
 function render(): void {
@@ -59,17 +60,20 @@ function render(): void {
   const label =
     pendingKeys.length > 1 ? t("undoHiddenMany", String(pendingKeys.length)) : t("undoHiddenOne");
 
-  setInnerHtml(
-    shadow,
+  const bar = document.createElement("div");
+  bar.className = "bar";
+  bar.setAttribute("role", "status");
+  replaceContent(
+    bar,
     `
-    <style>${STYLES}</style>
-    <div class="bar" role="status">
-      <span>${escapeHtml(label)}</span>
-      <button type="button">${escapeHtml(t("undoButton"))}</button>
-    </div>
+    <span>${escapeHtml(label)}</span>
+    <button type="button">${escapeHtml(t("undoButton"))}</button>
   `,
   );
-  shadow.querySelector("button")?.addEventListener("click", () => {
+
+  shadow.querySelectorAll(".bar").forEach((el) => el.remove());
+  shadow.append(bar);
+  bar.querySelector("button")?.addEventListener("click", () => {
     void undoAll();
   });
 }

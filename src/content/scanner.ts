@@ -15,6 +15,22 @@ let totalCardsSeen = 0;
 let resolvedCardsSeen = 0;
 let incompatible = false;
 
+/** Exposed on window for in-page troubleshooting — see mountDebugHook() below. */
+export const debugState = {
+  get totalCardsSeen() {
+    return totalCardsSeen;
+  },
+  get resolvedCardsSeen() {
+    return resolvedCardsSeen;
+  },
+  mountedCount: 0,
+  lastError: null as { message: string; stack?: string } | null,
+};
+
+function recordError(err: unknown): void {
+  debugState.lastError = err instanceof Error ? { message: err.message, stack: err.stack } : { message: String(err) };
+}
+
 export function startScanning(): void {
   // Each concern gets its own guard: a failure in one (e.g. MutationObserver
   // being unavailable) must not prevent the others from still working.
@@ -60,19 +76,28 @@ function processArticle(article: HTMLElement): void {
   article.setAttribute("data-aoh-seen", "");
   totalCardsSeen += 1;
 
+  let identity;
   try {
-    const identity = identityFromCard(article);
-    if (!identity) return;
+    identity = identityFromCard(article);
+  } catch (err) {
+    recordError(err);
+    return;
+  }
+  if (!identity) return;
 
-    const keys = hideKeys(identity);
-    if (keys.length === 0) return;
+  const keys = hideKeys(identity);
+  if (keys.length === 0) return;
 
-    resolvedCardsSeen += 1;
-    seenKeys.set(article, keys);
-    applyHiddenState(article, keys);
+  resolvedCardsSeen += 1;
+  seenKeys.set(article, keys);
+  applyHiddenState(article, keys);
+
+  try {
     mountCardControls(article, identity, keys);
-  } catch {
-    // Leave this card unmodified; the rest of the batch continues.
+    debugState.mountedCount += 1;
+  } catch (err) {
+    // Leave this card's visibility state as applied above; only the controls failed to mount.
+    recordError(err);
   }
 }
 

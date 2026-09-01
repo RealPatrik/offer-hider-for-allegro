@@ -1,48 +1,33 @@
 /**
- * A page that enforces `Content-Security-Policy: require-trusted-types-for 'script'`
- * (increasingly common on large e-commerce sites) makes every `.innerHTML =`
- * assignment throw — including from a content script, since Trusted Types is
- * enforced on the DOM sink itself, not per JS world. Every HTML string we ever
- * assign here is either a static template or built with escapeHtml(), so it's
- * safe to declare a permissive policy for our own use rather than hand-build
- * DOM nodes everywhere.
+ * A page that enforces `Content-Security-Policy: require-trusted-types-for
+ * 'script'` (increasingly common on large e-commerce sites) makes every
+ * `Element.innerHTML =` assignment throw — including from a content script,
+ * since the restriction is on the DOM sink itself, not the calling JS world.
+ * Declaring our own Trusted Types policy only works if the page's CSP also
+ * lists our policy name in its `trusted-types` directive, which we can't
+ * control or detect in advance.
+ *
+ * `DOMParser.parseFromString()` is not a gated sink (it produces a detached
+ * Document; nothing in it executes), so we parse markup there and move the
+ * resulting nodes over with plain DOM APIs — which always work regardless of
+ * the page's Trusted Types configuration.
  */
 
-interface TrustedHTML {
-  __trustedHTMLBrand: true;
+function htmlToNodes(html: string): Node[] {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return Array.from(doc.body.childNodes);
 }
 
-interface TrustedTypePolicy {
-  createHTML(input: string): TrustedHTML;
+export function replaceContent(root: Element | ShadowRoot, html: string): void {
+  root.replaceChildren(...htmlToNodes(html));
 }
 
-interface TrustedTypePolicyFactory {
-  createPolicy(name: string, rules: { createHTML(input: string): string }): TrustedTypePolicy;
+export function appendHtml(root: Element | ShadowRoot, html: string): void {
+  root.append(...htmlToNodes(html));
 }
 
-let policy: TrustedTypePolicy | null | undefined;
-
-function getPolicy(): TrustedTypePolicy | null {
-  if (policy !== undefined) return policy;
-
-  const factory = (window as unknown as { trustedTypes?: TrustedTypePolicyFactory }).trustedTypes;
-  if (!factory) {
-    policy = null;
-    return policy;
-  }
-
-  try {
-    policy = factory.createPolicy("offer-hider-for-allegro", { createHTML: (input) => input });
-  } catch {
-    // A policy with this name may already exist, or CSP's trusted-types
-    // directive may not list it — fall back to a plain string assignment.
-    policy = null;
-  }
-  return policy;
-}
-
-export function setInnerHtml(el: Element | ShadowRoot, html: string): void {
-  const target = el as unknown as { innerHTML: string | TrustedHTML };
-  const p = getPolicy();
-  target.innerHTML = p ? p.createHTML(html) : html;
+export function createStyle(css: string): HTMLStyleElement {
+  const style = document.createElement("style");
+  style.textContent = css;
+  return style;
 }

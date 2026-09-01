@@ -3,7 +3,7 @@ import { store } from "../core/store";
 import { t } from "../core/i18n";
 import type { Identity } from "../core/types";
 import { escapeHtml } from "./dom-utils";
-import { setInnerHtml } from "./trusted-html";
+import { createStyle, replaceContent } from "./trusted-html";
 
 const STYLES = `
   :host { all: initial; }
@@ -63,20 +63,24 @@ function mountBanner(heading: Element, keys: string[], identity: Identity): void
   const host = document.createElement("div");
   heading.insertAdjacentElement("beforebegin", host);
   const shadow = host.attachShadow({ mode: "open" });
+  shadow.append(createStyle(STYLES));
 
   const render = (): void => {
     const hidden = store.isEnabled() && store.isHidden(keys);
-    setInnerHtml(
-      shadow,
+
+    const banner = document.createElement("div");
+    banner.className = hidden ? "banner hidden" : "banner";
+    replaceContent(
+      banner,
       `
-      <style>${STYLES}</style>
-      <div class="banner ${hidden ? "hidden" : ""}">
-        <span>${hidden ? escapeHtml(t("offerPageHiddenNotice")) : ""}</span>
-        <button type="button">${escapeHtml(hidden ? t("offerPageUnhideButton") : t("offerPageHideButton"))}</button>
-      </div>
+      <span>${hidden ? escapeHtml(t("offerPageHiddenNotice")) : ""}</span>
+      <button type="button">${escapeHtml(hidden ? t("offerPageUnhideButton") : t("offerPageHideButton"))}</button>
     `,
     );
-    shadow.querySelector("button")?.addEventListener("click", () => {
+
+    shadow.querySelectorAll(".banner").forEach((el) => el.remove());
+    shadow.append(banner);
+    banner.querySelector("button")?.addEventListener("click", () => {
       void toggle(hidden);
     });
   };
