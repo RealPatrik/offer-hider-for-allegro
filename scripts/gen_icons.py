@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """Generates the extension's PNG icons from scratch with Pillow.
 
-Simple flat mark: a dark rounded square with a light eye-slash glyph,
-matching the hide icon used in the content-script UI.
+Orange rounded square with a bold white "a" — an original mark (not traced
+from Allegro's own logo file), evoking the Allegro brand color/initial per
+the user's request rather than a copy of their actual lettermark.
 """
-import math
 import os
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 SIZES = [16, 32, 48, 128]
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "public", "icons")
 
-BG = (30, 32, 36, 255)
+BG = (255, 90, 0, 255)  # Allegro-style orange
 FG = (255, 255, 255, 255)
+
+FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Black.ttf"
 
 
 def draw_icon(size: int) -> Image.Image:
@@ -25,23 +27,13 @@ def draw_icon(size: int) -> Image.Image:
     radius = big * 0.22
     draw.rounded_rectangle([0, 0, big - 1, big - 1], radius=radius, fill=BG)
 
-    cx, cy = big / 2, big / 2
-    r = big * 0.30
-    stroke = max(2, round(big * 0.052))
-
-    # Eye arc: two bezier-ish arcs approximated via arc() for the lids.
-    bbox = [cx - r, cy - r * 0.62, cx + r, cy + r * 0.62]
-    draw.arc(bbox, start=200, end=340, fill=FG, width=stroke)
-    draw.arc(bbox, start=20, end=160, fill=FG, width=stroke)
-
-    # Slash through the eye.
-    dx = r * 1.05
-    dy = r * 1.05
-    draw.line(
-        [(cx - dx, cy - dy * 0.55), (cx + dx, cy + dy * 0.55)],
-        fill=FG,
-        width=stroke,
-    )
+    font = ImageFont.truetype(FONT_PATH, int(big * 0.68))
+    glyph = "a"
+    bbox = draw.textbbox((0, 0), glyph, font=font)
+    w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    x = (big - w) / 2 - bbox[0]
+    y = (big - h) / 2 - bbox[1]
+    draw.text((x, y), glyph, font=font, fill=FG)
 
     return img.resize((size, size), Image.LANCZOS)
 

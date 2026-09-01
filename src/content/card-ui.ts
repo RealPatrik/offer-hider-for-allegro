@@ -3,6 +3,7 @@ import { store } from "../core/store";
 import { t } from "../core/i18n";
 import type { HiddenKind, Identity } from "../core/types";
 import { cardTitle, escapeHtml } from "./dom-utils";
+import { setInnerHtml } from "./trusted-html";
 import { showUndo } from "./undo";
 
 const STYLES = `
@@ -80,14 +81,17 @@ export function mountCardControls(article: HTMLElement, identity: Identity, keys
   article.appendChild(host);
 
   const shadow = host.attachShadow({ mode: "open" });
-  shadow.innerHTML = `
+  setInnerHtml(
+    shadow,
+    `
     <style>${STYLES}</style>
     <div class="wrap">
       <button class="icon" type="button" aria-label="${escapeHtml(t("hideIconLabel"))}" title="${escapeHtml(t("hideIconLabel"))}">${EYE_SLASH_SVG}</button>
       <button class="chevron" type="button" aria-label="${escapeHtml(t("hideMenuLabel"))}" aria-expanded="false">${CHEVRON_SVG}</button>
       <div class="menu" hidden role="menu"></div>
     </div>
-  `;
+  `,
+  );
 
   const iconButton = shadow.querySelector<HTMLButtonElement>(".icon")!;
   const chevronButton = shadow.querySelector<HTMLButtonElement>(".chevron")!;
@@ -122,7 +126,7 @@ export function mountCardControls(article: HTMLElement, identity: Identity, keys
         `<button type="button" data-action="seller" role="menuitem">${escapeHtml(t("hideSellerAction"))}</button>`,
       );
     }
-    menu.innerHTML = items.join("");
+    setInnerHtml(menu, items.join(""));
     menu.removeAttribute("hidden");
     chevronButton.setAttribute("aria-expanded", "true");
     closeOpenMenu = closeMenu;

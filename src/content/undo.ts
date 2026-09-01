@@ -1,6 +1,7 @@
 import { store } from "../core/store";
 import { t } from "../core/i18n";
 import { escapeHtml } from "./dom-utils";
+import { setInnerHtml } from "./trusted-html";
 
 const VISIBLE_MS = 5000;
 
@@ -58,13 +59,16 @@ function render(): void {
   const label =
     pendingKeys.length > 1 ? t("undoHiddenMany", String(pendingKeys.length)) : t("undoHiddenOne");
 
-  shadow.innerHTML = `
+  setInnerHtml(
+    shadow,
+    `
     <style>${STYLES}</style>
     <div class="bar" role="status">
       <span>${escapeHtml(label)}</span>
       <button type="button">${escapeHtml(t("undoButton"))}</button>
     </div>
-  `;
+  `,
+  );
   shadow.querySelector("button")?.addEventListener("click", () => {
     void undoAll();
   });

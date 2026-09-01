@@ -3,6 +3,7 @@ import { store } from "../core/store";
 import { t } from "../core/i18n";
 import type { Identity } from "../core/types";
 import { escapeHtml } from "./dom-utils";
+import { setInnerHtml } from "./trusted-html";
 
 const STYLES = `
   :host { all: initial; }
@@ -65,13 +66,16 @@ function mountBanner(heading: Element, keys: string[], identity: Identity): void
 
   const render = (): void => {
     const hidden = store.isEnabled() && store.isHidden(keys);
-    shadow.innerHTML = `
+    setInnerHtml(
+      shadow,
+      `
       <style>${STYLES}</style>
       <div class="banner ${hidden ? "hidden" : ""}">
         <span>${hidden ? escapeHtml(t("offerPageHiddenNotice")) : ""}</span>
         <button type="button">${escapeHtml(hidden ? t("offerPageUnhideButton") : t("offerPageHideButton"))}</button>
       </div>
-    `;
+    `,
+    );
     shadow.querySelector("button")?.addEventListener("click", () => {
       void toggle(hidden);
     });
