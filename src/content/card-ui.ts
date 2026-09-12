@@ -8,34 +8,49 @@ import { showUndo } from "./undo";
 
 const STYLES = `
   :host { all: initial; }
-  .wrap { position: relative; display: flex; gap: 2px; font: 13px/1 -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { position: relative; display: flex; align-items: stretch; font: 13px/1 -apple-system, "Segoe UI", Roboto, sans-serif; }
   button {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    height: 32px;
+    border: 1px solid #c8c8c8;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
     cursor: pointer;
-    color: #222;
+    color: #252525;
     padding: 0;
   }
-  button:hover { background: #fff; }
-  .chevron { width: 16px; }
+  button:hover { background: #f6f6f6; }
+  button:focus-visible { outline: 3px solid #ff5a00; outline-offset: 2px; }
+  .icon { width: 32px; border-radius: 8px 0 0 8px; border-right: 0; }
+  .chevron { width: 22px; border-radius: 0 8px 8px 0; }
+  .temporary-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    margin-left: 8px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #fff0e8;
+    color: #a53a10;
+    font-size: 11px;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  .temporary-status[hidden] { display: none; }
   svg { width: 16px; height: 16px; }
   .menu {
     position: absolute;
-    top: 32px;
+    bottom: 38px;
     right: 0;
     display: flex;
     flex-direction: column;
-    min-width: 180px;
+    min-width: 196px;
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    border: 1px solid #dedede;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
     overflow: hidden;
   }
   .menu[hidden] { display: none; }
@@ -69,23 +84,35 @@ function bindOutsideClickOnce(): void {
   document.addEventListener("click", () => closeOpenMenu?.());
 }
 
-export function mountCardControls(article: HTMLElement, identity: Identity, keys: string[]): void {
+export function mountCardControls(
+  article: HTMLElement,
+  identity: Identity,
+  keys: string[],
+  temporarilyVisible = false,
+): void {
   bindOutsideClickOnce();
-
-  // Re-applied on every mount, not just the first: a framework re-render that
-  // removes our host usually rewrites the card's style attribute too, which
-  // would otherwise leave the host anchored to the wrong ancestor.
-  if (getComputedStyle(article).position === "static") {
-    article.style.position = "relative";
-  }
 
   const host = document.createElement("div");
   host.setAttribute(HOST_ATTR, "");
-  host.style.position = "absolute";
-  host.style.top = "8px";
-  host.style.right = "8px";
   host.style.zIndex = "2147483000";
-  article.appendChild(host);
+
+  // The cart button is a stable Allegro attribute and gives the action a
+  // semantic, lower-card home. It avoids covering seller logos and product
+  // media in the upper-right corner of cards.
+  const cartButton = article.querySelector<HTMLElement>('[data-role-type="add-to-cart-button"]');
+  if (cartButton?.parentElement) {
+    host.style.position = "relative";
+    host.style.flex = "0 0 auto";
+    cartButton.insertAdjacentElement("afterend", host);
+  } else {
+    // Some recommendation cards do not expose an add-to-cart button. Keep the
+    // control in normal document flow rather than overlaying unknown content.
+    host.style.position = "relative";
+    host.style.display = "block";
+    host.style.width = "fit-content";
+    host.style.margin = "8px 8px 8px auto";
+    article.appendChild(host);
+  }
 
   const shadow = host.attachShadow({ mode: "open" });
   shadow.append(createStyle(STYLES));
@@ -95,6 +122,7 @@ export function mountCardControls(article: HTMLElement, identity: Identity, keys
     <div class="wrap">
       <button class="icon" type="button" aria-label="${escapeHtml(t("hideIconLabel"))}" title="${escapeHtml(t("hideIconLabel"))}">${EYE_SLASH_SVG}</button>
       <button class="chevron" type="button" aria-label="${escapeHtml(t("hideMenuLabel"))}" aria-expanded="false">${CHEVRON_SVG}</button>
+      <span class="temporary-status" role="status" ${temporarilyVisible ? "" : "hidden"}>${escapeHtml(t("cardTemporarilyVisible"))}</span>
       <div class="menu" hidden role="menu"></div>
     </div>
   `,
@@ -166,4 +194,13 @@ export function mountCardControls(article: HTMLElement, identity: Identity, keys
     });
     showUndo(key);
   }
+}
+
+/** Updates the existing lower-card status pill without remounting the controls. */
+export function setCardTemporarilyVisible(article: HTMLElement, visible: boolean): void {
+  const status = article
+    .querySelector<HTMLElement>(`[${HOST_ATTR}]`)
+    ?.shadowRoot?.querySelector<HTMLElement>(".temporary-status");
+  if (!status) return;
+  status.toggleAttribute("hidden", !visible);
 }

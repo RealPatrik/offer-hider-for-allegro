@@ -1,9 +1,12 @@
 import type { Identity, Market, SellerIdentity } from "./types";
 
-const OFFER_ID_PATTERN = /-(\d{6,})(?:[/?#]|$)/;
+// Allegro serves both `/ponuka/descriptive-name-18875692290` and the shorter
+// `/ponuka/18875692290` form. The latter is currently common inside sponsored
+// `/events/clicks` redirects, so the id must be read from the whole offer path
+// segment rather than only after a hyphen.
+const OFFER_PATH_ID_PATTERN = /\/(?:oferta|ponuka|offer|item)\/(?:[^/?#]*-)?(\d{6,})(?:\/|$)/i;
 const PRODUCT_UUID_PATTERN =
   /\/produkt\/[^/?#]*-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
-const OFFER_PATH_PATTERN = /\/(?:oferta|ponuka|offer|item)\//i;
 const REDIRECT_PATH_PATTERN = /\/events\/clicks/i;
 
 const EMPTY_IDENTITY: Identity = { offerId: null, productUuid: null, market: null };
@@ -14,8 +17,7 @@ export function marketFromHostname(hostname: string): Market | null {
 }
 
 function offerIdFromPath(pathname: string): string | null {
-  if (!OFFER_PATH_PATTERN.test(pathname)) return null;
-  const match = pathname.match(OFFER_ID_PATTERN);
+  const match = pathname.match(OFFER_PATH_ID_PATTERN);
   return match ? match[1]! : null;
 }
 

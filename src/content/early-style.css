@@ -1,3 +1,10 @@
 article[data-aoh="hidden"] {
   display: none !important;
 }
+
+/* The item is still stored as hidden; the user has only revealed it for the
+   current page. An inset outline avoids changing the card's layout. */
+article[data-aoh="temporarily-visible"] {
+  outline: 2px solid rgb(241 90 36 / 42%) !important;
+  outline-offset: -2px !important;
+}

@@ -1,7 +1,8 @@
 import { store } from "../core/store";
+import { isPageStatusMessage } from "../core/page-status";
 import { setLocaleOverride, type LocaleCode } from "../core/i18n";
 import { mountOfferPageBanner } from "./offer-page";
-import { debugState, startScanning } from "./scanner";
+import { debugState, getPageHideStatus, setTemporaryReveal, startScanning } from "./scanner";
 
 // Content scripts run in an isolated world, so this is only reachable from a
 // DevTools console whose context is switched to the extension. For the page
@@ -21,4 +22,24 @@ async function bootstrap(): Promise<void> {
   mountOfferPageBanner();
 }
 
-void bootstrap();
+const bootstrapped = bootstrap();
+
+chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) => {
+  if (!isPageStatusMessage(message)) return;
+
+  void bootstrapped
+    .then(() => {
+      if (message.type === "aoh:get-page-status") {
+        sendResponse(getPageHideStatus());
+        return;
+      }
+      sendResponse(setTemporaryReveal(message.enabled));
+    })
+    .catch(() => {
+      // The popup treats a missing response as unavailable; content scripts
+      // must never leak an internal error to the page.
+      sendResponse(undefined);
+    });
+
+  return true;
+});

@@ -53,6 +53,12 @@ describe("identityFromUrl", () => {
     expect(id.productUuid).toBeNull();
   });
 
+  it("reads the offer id from Allegro's shorter numeric-only /ponuka/ URL", () => {
+    const id = identityFromUrl("https://allegro.sk/ponuka/18875692290?bi_s=ads");
+    expect(id.offerId).toBe("18875692290");
+    expect(id.productUuid).toBeNull();
+  });
+
   it("follows a sponsored /events/clicks redirect to the underlying offer", () => {
     const id = identityFromUrl(
       "https://allegro.sk/events/clicks?emission_unit_id=4db88c1d-7550-411d-b5f2-87d4c998769f&type=OFFER&redirect=" +
@@ -61,6 +67,15 @@ describe("identityFromUrl", () => {
         ),
     );
     expect(id.offerId).toBe("18464697700");
+    expect(id.market).toBe("sk");
+  });
+
+  it("follows a sponsored redirect to a numeric-only offer URL", () => {
+    const id = identityFromUrl(
+      "https://allegro.sk/events/clicks?type=OFFER&redirect=" +
+        encodeURIComponent("https://allegro.sk/ponuka/18875692290?bi_s=ads"),
+    );
+    expect(id.offerId).toBe("18875692290");
     expect(id.market).toBe("sk");
   });
 

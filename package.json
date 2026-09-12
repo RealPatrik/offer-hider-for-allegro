@@ -1,6 +1,6 @@
 {
   "name": "offer-hider-for-allegro",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "Hide unwanted offers, products and sellers on Allegro search results.",
   "type": "module",

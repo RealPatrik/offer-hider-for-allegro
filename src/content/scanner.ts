@@ -1,12 +1,13 @@
 import { hideKeys, identityFromCard } from "../core/identity";
+import type { PageHideStatus } from "../core/page-status";
 import { store } from "../core/store";
-import { HOST_ATTR, mountCardControls } from "./card-ui";
+import { HOST_ATTR, mountCardControls, setCardTemporarilyVisible } from "./card-ui";
 import type { Identity } from "../core/types";
-
-const LISTING_CONTAINER_SELECTOR = '[data-box-name="product listing items"]';
 
 const SEEN_ATTR = "data-aoh-seen";
 const DEBUG_ATTR = "data-aoh-debug";
+const OFFER_LINK_SELECTOR =
+  'a[href*="offerId="], a[href*="/events/clicks"], a[href*="/oferta/"], a[href*="/ponuka/"], a[href*="/offer/"], a[href*="/item/"], a[href*="/produkt/"]';
 
 /** After this many cards we've inspected, zero resolved identities means the page layout changed. */
 const INCOMPATIBLE_THRESHOLD = 20;
@@ -27,6 +28,7 @@ interface CardData {
 
 const cardData = new WeakMap<Element, CardData>();
 const mountAttempts = new WeakMap<Element, number>();
+const countedCandidates = new WeakSet<Element>();
 
 let observer: MutationObserver | null = null;
 let rafHandle: number | null = null;
@@ -36,6 +38,8 @@ let mountedCount = 0;
 let remountedCount = 0;
 let incompatible = false;
 let lastError: { message: string; stack?: string } | null = null;
+let temporarilyRevealed = false;
+let pageKey = currentPageKey();
 
 export const debugState = {
   get totalCardsSeen() {
@@ -70,7 +74,12 @@ export function startScanning(): void {
   }
   try {
     observer = new MutationObserver(scheduleScan);
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["href"],
+    });
   } catch (err) {
     recordError(err);
   }
@@ -79,6 +88,25 @@ export function startScanning(): void {
   } catch (err) {
     recordError(err);
   }
+}
+
+/** Returns page-local state for the extension popup; no part of it is persisted. */
+export function getPageHideStatus(): PageHideStatus {
+  if (resetTemporaryRevealOnNavigation()) refreshVisibility();
+  return {
+    matchedCount: countMatchedCards(),
+    temporarilyRevealed,
+    hidingEnabled: store.isEnabled(),
+  };
+}
+
+/** Shows matching cards only in this tab and only until this logical page changes. */
+export function setTemporaryReveal(enabled: boolean): PageHideStatus {
+  resetTemporaryRevealOnNavigation();
+  temporarilyRevealed = enabled;
+  refreshVisibility();
+  publishDebug();
+  return getPageHideStatus();
 }
 
 function scheduleScan(): void {
@@ -92,8 +120,11 @@ function scheduleScan(): void {
 function scan(): void {
   if (incompatible) return;
   try {
-    const container = document.querySelector(LISTING_CONTAINER_SELECTOR) ?? document.documentElement;
-    container.querySelectorAll<HTMLElement>("article").forEach(processArticle);
+    if (resetTemporaryRevealOnNavigation()) refreshVisibility();
+    // Sponsored and recommended cards can be rendered outside the first listing
+    // container. Identity parsing is strict, so scanning every article keeps
+    // those cards covered without attaching controls to unrelated content.
+    document.querySelectorAll<HTMLElement>("article").forEach(processArticle);
     evaluateCompatibility();
   } catch (err) {
     // Swallow: one bad scan pass should not stop future ones from being scheduled.
@@ -111,11 +142,16 @@ function processArticle(article: HTMLElement): void {
     return;
   }
 
-  // Marked on an earlier pass but never resolved: no identity to be had here.
+  // A card with a resolved identity is final. Unresolved cards deliberately
+  // remain retryable: Allegro often creates the article before hydrating its
+  // destination href, especially for sponsored results.
   if (article.hasAttribute(SEEN_ATTR)) return;
 
-  article.setAttribute(SEEN_ATTR, "");
-  totalCardsSeen += 1;
+  if (!article.querySelector(OFFER_LINK_SELECTOR)) return;
+  if (!countedCandidates.has(article)) {
+    countedCandidates.add(article);
+    totalCardsSeen += 1;
+  }
 
   let identity: Identity | null;
   try {
@@ -129,6 +165,7 @@ function processArticle(article: HTMLElement): void {
   const keys = hideKeys(identity);
   if (keys.length === 0) return;
 
+  article.setAttribute(SEEN_ATTR, "");
   resolvedCardsSeen += 1;
   cardData.set(article, { identity, keys });
   applyHiddenState(article, keys);
@@ -137,14 +174,14 @@ function processArticle(article: HTMLElement): void {
 
 /** Mounts the card's controls if they are missing — on first sight or after a re-render wiped them. */
 function ensureControls(article: HTMLElement, data: CardData): void {
-  if (article.querySelector(`:scope > [${HOST_ATTR}]`)) return;
+  if (article.querySelector(`[${HOST_ATTR}]`)) return;
 
   const attempts = mountAttempts.get(article) ?? 0;
   if (attempts >= MAX_MOUNT_ATTEMPTS) return;
   mountAttempts.set(article, attempts + 1);
 
   try {
-    mountCardControls(article, data.identity, data.keys);
+    mountCardControls(article, data.identity, data.keys, isTemporarilyVisible(data.keys));
     mountedCount += 1;
     if (attempts > 0) remountedCount += 1;
   } catch (err) {
@@ -154,18 +191,50 @@ function ensureControls(article: HTMLElement, data: CardData): void {
 }
 
 function applyHiddenState(article: HTMLElement, keys: string[]): void {
-  if (store.isEnabled() && store.isHidden(keys)) {
+  if (isTemporarilyVisible(keys)) {
+    article.setAttribute("data-aoh", "temporarily-visible");
+    setCardTemporarilyVisible(article, true);
+  } else if (store.isEnabled() && store.isHidden(keys)) {
     article.setAttribute("data-aoh", "hidden");
+    setCardTemporarilyVisible(article, false);
   } else {
     article.removeAttribute("data-aoh");
+    setCardTemporarilyVisible(article, false);
   }
 }
 
 function refreshVisibility(): void {
+  resetTemporaryRevealOnNavigation();
   document.querySelectorAll<HTMLElement>(`article[${SEEN_ATTR}]`).forEach((article) => {
     const data = cardData.get(article);
     if (data) applyHiddenState(article, data.keys);
   });
+}
+
+function isTemporarilyVisible(keys: string[]): boolean {
+  return temporarilyRevealed && store.isEnabled() && store.isHidden(keys);
+}
+
+/** Counts affected result cards, not durable hiding rules. A card is counted once even for several keys. */
+function countMatchedCards(): number {
+  let count = 0;
+  document.querySelectorAll<HTMLElement>(`article[${SEEN_ATTR}]`).forEach((article) => {
+    const data = cardData.get(article);
+    if (data && store.isHidden(data.keys)) count += 1;
+  });
+  return count;
+}
+
+function currentPageKey(): string {
+  return `${location.origin}${location.pathname}${location.search}`;
+}
+
+function resetTemporaryRevealOnNavigation(): boolean {
+  const nextPageKey = currentPageKey();
+  if (nextPageKey === pageKey) return false;
+  pageKey = nextPageKey;
+  temporarilyRevealed = false;
+  return true;
 }
 
 function evaluateCompatibility(): void {
@@ -191,6 +260,8 @@ function publishDebug(): void {
         resolved: resolvedCardsSeen,
         mounted: mountedCount,
         remounted: remountedCount,
+        matchedOnPage: countMatchedCards(),
+        temporarilyRevealed,
         hostsInDom: document.querySelectorAll(`[${HOST_ATTR}]`).length,
         incompatible,
         lastError,

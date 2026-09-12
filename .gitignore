@@ -1,4 +1,5 @@
 node_modules/
 dist/
+graphify-out/
 *.zip
 .DS_Store
