@@ -24,10 +24,19 @@ def draw_icon(size: int) -> Image.Image:
     img = Image.new("RGBA", (big, big), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
 
-    radius = big * 0.22
-    draw.rounded_rectangle([0, 0, big - 1, big - 1], radius=radius, fill=BG)
+    # Chrome Web Store asks square 128 px icons to keep the actual artwork at
+    # 96 px, leaving 16 px of transparent padding on every side. Toolbar sizes
+    # stay full-bleed so they remain legible at 16–48 px.
+    artwork = big * 0.75 if size == 128 else big
+    inset = (big - artwork) / 2
+    radius = artwork * 0.22
+    draw.rounded_rectangle(
+        [inset, inset, big - inset - 1, big - inset - 1],
+        radius=radius,
+        fill=BG,
+    )
 
-    font = ImageFont.truetype(FONT_PATH, int(big * 0.68))
+    font = ImageFont.truetype(FONT_PATH, int(artwork * 0.68))
     glyph = "a"
     bbox = draw.textbbox((0, 0), glyph, font=font)
     w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]

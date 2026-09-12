@@ -2,4 +2,5 @@ node_modules/
 dist/
 graphify-out/
 *.zip
+store-assets/**/*-source.png
 .DS_Store
