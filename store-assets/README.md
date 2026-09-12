@@ -6,7 +6,7 @@
 - `screenshots/02-hide-and-undo-1280x800.png` — actual sponsored results and the undo confirmation after hiding an offer.
 - `promotional/small-promo-440x280.png` — required small promotional tile.
 - `promotional/marquee-1400x560.png` — optional marquee promotional image.
-- `../public/icons/128.png` — extension/store icon included in the extension package.
+- `store-icon-128x128.png` — standalone 128 × 128 px Store icon; identical to the icon included in the extension package.
 
 The `*-source.png` files are retained as source captures or generated masters and should not be uploaded to the Store.
 
