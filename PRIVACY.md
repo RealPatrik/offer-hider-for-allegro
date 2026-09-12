@@ -17,6 +17,8 @@ The extension processes a limited amount of website content locally in the user'
 
 The extension also checks which browser tab is active when its popup is opened so that it can display the number of matching hidden offers on the current supported Allegro page. The active tab URL and browsing history are not stored.
 
+For Chrome Web Store disclosure purposes, the local processing of Allegro offer links and marketplace context is disclosed under Website content and Web history. The extension does not request the `history` permission, use the Chrome History API, or retain a list of pages the user has visited.
+
 ## How data is used
 
 This information is used only to:

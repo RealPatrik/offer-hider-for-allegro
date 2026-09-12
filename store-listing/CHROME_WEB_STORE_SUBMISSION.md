@@ -70,13 +70,17 @@ Ak Dashboard zobrazí odôvodnenie prístupu k hostiteľom, vlož:
 
 Vyber `No, I am not using remote code`.
 
+Ak Dashboard napriek voľbe `No` vyžaduje text v poli `Justification`, vlož:
+
+> No remote code is used. All JavaScript, CSS, and localization files executed by the extension are included in the submitted ZIP package. The only fetch call reads a bundled locale JSON file through chrome.runtime.getURL; the extension does not load or execute external JavaScript, WebAssembly, modules, or eval-based code.
+
 ### Data disclosure
 
-Rozšírenie nič neposiela mimo zariadenia. Dashboard však môže používať širšie slovo „handle“, ktoré zahŕňa aj lokálne spracovanie. Vyplň konzervatívne a v súlade s aktuálnym znením otázky:
+Rozšírenie nič neposiela mimo zariadenia, ale Chrome považuje aj lokálne spracovanie za prácu s používateľskými údajmi. V zobrazenom formulári označ presne:
 
-- Ak sa otázka pýta na údaje „collected or transmitted off the user's device“, vyber, že rozšírenie také údaje nezhromažďuje ani neprenáša.
-- Ak sa otázka pýta na akékoľvek údaje, ktoré rozšírenie „handles“ alebo spracúva, označ `Website content` a `Web browsing activity` a uveď, že sa spracúvajú iba lokálne na podporovaných doménach kvôli funkcii skrytia.
-- Neoznačuj: personally identifiable information, health information, financial and payment information, authentication information, personal communications, location ani user activity mimo nevyhnutného lokálneho spracovania podporovaných stránok.
+- `Web history` — áno. Rozšírenie lokálne pracuje s odkazmi a trhom Allegro na aktuálnej navštívenej stránke, aby rozpoznalo ponuky. Nežiada oprávnenie `history`, nečíta Chrome History API ani neukladá zoznam navštívených stránok.
+- `Website content` — áno. Lokálne číta odkazy na ponuky, ich viditeľné názvy a dostupné mená predajcov iba na podporovaných stránkach Allegro.
+- všetky ostatné kategórie — nie: personally identifiable information, health information, financial and payment information, authentication information, personal communications, location a user activity. Rozšírenie neprofiluje kliknutia, pohyb myšou, rolovanie ani stlačenia kláves; uloží iba pravidlo, ktoré používateľ vedome vytvorí voľbou skrytia.
 
 ### Limited Use certifications
 
@@ -90,11 +94,11 @@ Potvrď všetky pravdivé certifikácie:
 
 ### Privacy policy
 
-Vlož URL:
+Vlož verejne dostupnú URL:
 
 `https://github.com/RealPatrik/offer-hider-for-allegro/blob/main/PRIVACY.md`
 
-Pred odoslaním ju otvor v anonymnom okne a over, že je verejne dostupná bez prihlásenia.
+Táto URL bude fungovať až po zverejnení repozitára `RealPatrik/offer-hider-for-allegro`, ktorý je v čase prípravy súkromný. Ak má zostať súkromný, najprv zverejni rovnaký obsah `PRIVACY.md` na inom verejnom webe a vlož jeho URL. Pred odoslaním odkaz otvor v anonymnom okne a over, že je dostupný bez prihlásenia.
 
 ## 5. Distribution
 
